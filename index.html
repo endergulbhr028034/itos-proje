@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İncelemeye Değer Olmayan Evrak Listeleri</title>
+    <style>
+        /* Projenizin mevcut CSS kodları buraya gelecek */
+        .filter-panel { display: flex; gap: 15px; background: #fce181; padding: 15px; border-radius: 4px; }
+        .filter-group { display: flex; flex-direction: column; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #fce181; }
+    </style>
+</head>
+<body>
+
+    <!-- YENİ KAYIT VE FİLTRELEME PANELİ -->
+    <div class="filter-panel">
+        <!-- Ay Seçimi (Ayrıldı) -->
+        <div class="filter-group">
+            <label>Ay Seçin:</label>
+            <select id="monthSelect" onchange="filterData()">
+                <option value="">Tümü</option>
+                <option value="Ocak">Ocak</option>
+                <option value="Şubat">Şubat</option>
+                <option value="Mart">Mart</option>
+                <option value="Nisan">Nisan</option>
+                <option value="Mayıs">Mayıs</option>
+                <option value="Haziran">Haziran</option>
+                <option value="Temmuz">Temmuz</option>
+                <option value="Ağustos">Ağustos</option>
+                <option value="Eylül">Eylül</option>
+                <option value="Ekim">Ekim</option>
+                <option value="Kasım">Kasım</option>
+                <option value="Aralık">Aralık</option>
+            </select>
+        </div>
+
+        <!-- Yıl Seçimi (Ayrıldı) -->
+        <div class="filter-group">
+            <label>Yıl Seçin:</label>
+            <select id="yearSelect" onchange="filterData()">
+                <option value="">Tümü</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+            </select>
+        </div>
+
+        <!-- 81 İl Çalışma ve İş Kurumu Seçimi -->
+        <div class="filter-group">
+            <label>Liste Adı (İl İŞKUR):</label>
+            <select id="listNameSelect" onchange="filterData()">
+                <option value="">Tümü</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- VERİ TABLOSU -->
+    <table>
+        <thead>
+            <tr>
+                <th>Ay</th>
+                <th>Yıl</th>
+                <th>Liste No</th>
+                <th>Liste Adı</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Veriler JavaScript ile buraya dolacak -->
+        </tbody>
+    </table>
+
+    <script>
+        // 81 İl Listesi
+        const iller = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce"];
+        
+        let tümVeriler = []; // Sunucudan gelen ham verileri tutacak
+
+        // Sayfa açıldığında çalışır
+        document.addEventListener("DOMContentLoaded", () => {
+            // 81 İli açılır listeye yükle
+            const select = document.getElementById("listNameSelect");
+            iller.sort((a, b) => a.localeCompare(b, 'tr')).forEach(il => {
+                const option = document.createElement("option");
+                option.value = `${il} Çalışma Ve İş Kurumu İl Müdürlüğü`;
+                option.textContent = `${il} Çalışma Ve İş Kurumu İl Müdürlüğü`;
+                select.appendChild(option);
+            });
+
+            // Verileri Backend'den (Server.js) Çek
+            verileriGetir();
+        });
+
+        async function verileriGetir() {
+            try {
+                const response = await fetch('/api/veriler'); // API uç noktanız
+                tümVeriler = await response.json();
+                renderTable(tümVeriler);
+            } catch (error) {
+                console.error("Veri çekme hatası:", error);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = "";
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Kayıt bulunamadı.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                tbody.innerHTML += `<tr>
+                    <td>${item.ay}</td>
+                    <td>${item.yil}</td>
+                    <td>${item.no}</td>
+                    <td>${item.listeAdi}</td>
+                    <td>${item.durum}</td>
+                </tr>`;
+            });
+        }
+
+        // ANLIK FİLTRELEME MOTORU
+        function filterData() {
+            const secilenAy = document.getElementById("monthSelect").value;
+            const secilenYil = document.getElementById("yearSelect").value;
+            const secilenListe = document.getElementById("listNameSelect").value;
+
+            const filtrelenmis = tümVeriler.filter(item => {
+                const ayUyuyor = secilenAy === "" || item.ay === secilenAy;
+                const yilUyuyor = secilenYil === "" || item.yil === secilenYil;
+                const listeUyuyor = secilenListe === "" || item.listeAdi === secilenListe;
+                return ayUyuyor && yilUyuyor && listeUyuyor;
+            });
+
+            renderTable(filtrelenmis);
+        }
+    </script>
+</body>
+</html>
