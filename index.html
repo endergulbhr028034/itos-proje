@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>İTOS Örnek Arayüzü</title>
+    <style>
+        body { font-family: Calibri, sans-serif; background-color: #f4f4f4; margin: 20px; }
+        .baslik { background-color: #0056b3; color: white; padding: 10px; font-weight: bold; text-align: center; }
+        .alt-baslik { background-color: #ffe699; padding: 8px; font-weight: bold; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; background-color: #fff2cc; }
+        th { background-color: #ffd966; border: 1px solid #bf9000; padding: 8px; text-align: left; font-size: 13px; font-weight: bold; }
+        td { border: 1px solid #ffd966; padding: 8px; font-size: 13px; word-break: break-all; }
+        tr:nth-child(even) { background-color: #fff9e6; }
+        .durum-bekle { color: #d66011; font-weight: bold; }
+        .durum-ok { color: #008000; font-weight: bold; }
+        a { color: #0056b3; text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-icerik { background-color: white; margin: 15% auto; padding: 20px; border: 2px solid #0056b3; width: 400px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .modal-baslik { font-size: 16px; font-weight: bold; color: #0056b3; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .kapat-btn { float: right; font-size: 20px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .kapat-btn:hover { color: black; }
+        .file-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
+        .file-row label { width: 50px; font-weight: bold; }
+        .upload-btn { background-color: #0056b3; color: white; border: none; padding: 4px 8px; cursor: pointer; border-radius: 3px; }
+        .upload-btn:hover { background-color: #004085; }
+        .btn-indir { background-color: #28a745; text-decoration: none; display: inline-block; padding: 4px 8px; color: white; border-radius: 3px; font-size: 12px; margin-right: 5px; }
+        .btn-indir.pasif { background-color: #6c757d; pointer-events: none; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="baslik">İncelemeye Değer Olmayan Evrak Listeleri</div>
+    <div class="alt-baslik">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AY: Temmuz &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;YIL: 2026</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Liste No</th>
+                <th>Liste Adı</th>
+                <th>Yaratılma Tarihi</th>
+                <th>İşlem</th>
+                <th>Ek 1</th>
+                <th>Ek 2</th>
+                <th>Metin / Not</th>
+                <th>Türü</th>
+                <th>Şehir</th>
+                <th>Sonuç</th>
+                <th>Belge İndir</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="row-24691">
+                <td>24691</td>
+                <td>Aksaray Çalışma Ve İş Kurumu İl Müdürlüğü</td>
+                <td>24.07.2026</td>
+                <td><a onclick="pencereAc('24691', 'Aksaray İŞKUR')">Detay</a></td>
+                <td class="ek1-isim">-</td>
+                <td class="ek2-isim">-</td>
+                <td>-</td>
+                <td>SOSYAL</td>
+                <td>Aksaray</td>
+                <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td>
+                <td>
+                    <a id="download1-24691" class="btn-indir pasif" href="#">Ek-1</a>
+                    <a id="download2-24691" class="btn-indir pasif" href="#">Ek-2</a>
+                </td>
+            </tr>
+            <tr id="row-24692">
+                <td>24692</td>
+                <td>Ankara Çalışma Ve İş Kurumu İl Müdürlüğü</td>
+                <td>24.07.2026</td>
+                <td><a onclick="pencereAc('24692', 'Ankara İŞKUR')">Detay</a></td>
+                <td class="ek1-isim">-</td>
+                <td class="ek2-isim">-</td>
+                <td>-</td>
+                <td>TEKNİK</td>
+                <td>Ankara</td>
+                <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td>
+                <td>
+                    <a id="download1-24692" class="btn-indir pasif" href="#">Ek-1</a>
+                    <a id="download2-24692" class="btn-indir pasif" href="#">Ek-2</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="detayPenceresi" class="modal">
+        <div class="modal-icerik">
+            <span class="kapat-btn" onclick="pencereKapat()">&times;</span>
+            <div id="modalBaslikMetni" class="modal-baslik">Dosya Yükleme Paneli</div>
+            <div class="file-row">
+                <label>Ek-1:</label>
+                <input type="file" id="modal-file1">
+                <button class="upload-btn" onclick="detaydanYukle(1)">Yükle</button>
+            </div>
+            <div class="file-row">
+                <label>Ek-2:</label>
+                <input type="file" id="modal-file2">
+                <button class="upload-btn" onclick="detaydanYukle(2)">Yükle</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let aktifSeciliId = '';
+        const yuklemeTakip = { '24691': { ek1: false, ek2: false }, '24692': { ek1: false, ek2: false } };
+        function pencereAc(id, kurumAdi) {
+            aktifSeciliId = id;
+            document.getElementById('modalBaslikMetni').innerText = id + " - " + kurumAdi + " Ek Yükleme";
+            document.getElementById('modal-file1').value = '';
+            document.getElementById('modal-file2').value = '';
+            document.getElementById('detayPenceresi').style.display = 'block';
+        }
+        function pencereKapat() { document.getElementById('detayPenceresi').style.display = 'none'; }
+        function detaydanYukle(ekNo) {
+            const fileInput = document.getElementById("modal-file" + ekNo);
+            if (fileInput.files.length === 0) { alert("Lütfen dosya seçin!"); return; }
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+            formData.append('listeNo', aktifSeciliId);
+            fetch('/api/upload-single', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                alert("Başarıyla yüklendi!");
+                const satir = document.getElementById("row-" + aktifSeciliId);
+                if (ekNo === 1) {
+                    satir.querySelector('.ek1-isim').innerText = data.orijinalAd;
+                    const indir1 = document.getElementById("download1-" + aktifSeciliId);
+                    indir1.className = "btn-indir";
+                    indir1.href = "/api/download?file=" + encodeURIComponent(data.kayitliAd);
+                    yuklemeTakip[aktifSeciliId].ek1 = true;
+                } else {
+                    satir.querySelector('.ek2-isim').innerText = data.orijinalAd;
+                    const indir2 = document.getElementById("download2-" + aktifSeciliId);
+                    indir2.className = "btn-indir";
+                    indir2.href = "/api/download?file=" + encodeURIComponent(data.kayitliAd);
+                    yuklemeTakip[aktifSeciliId].ek2 = true;
+                }
+                if (yuklemeTakip[aktifSeciliId].ek1 && yuklemeTakip[aktifSeciliId].ek2) {
+                    const sonucHucresi = satir.querySelector('.sonuc-alan');
+                    sonucHucresi.innerText = "Tamamlandı";
+                    sonucHucresi.className = "sonuc-alan durum-ok";
+                }
+            }).catch(err => { alert('Yükleme hatası.'); });
+        }
+    </script>
+</body>
+</html>
