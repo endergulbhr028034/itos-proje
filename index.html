@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>İTOS Örnek Arayüzü</title>
+    <style>
+        body { font-family: Calibri, sans-serif; background-color: #f4f4f4; margin: 20px; }
+        .baslik { background-color: #0056b3; color: white; padding: 10px; font-weight: bold; text-align: center; font-size: 16px; }
+        .filtre-paneli { background-color: #ffe699; padding: 15px; border: 1px solid #bf9000; margin-bottom: 20px; border-radius: 5px; }
+        .panel-baslik { font-weight: bold; color: #0056b3; margin-bottom: 10px; font-size: 14px; }
+        .form-satir { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .form-grup { display: flex; flex-direction: column; gap: 3px; }
+        .form-grup label { font-size: 12px; font-weight: bold; color: #333; }
+        .form-grup select { padding: 4px; font-size: 13px; border: 1px solid #bf9000; border-radius: 3px; min-width: 120px; }
+        table { width: 100%; border-collapse: collapse; background-color: #fff2cc; margin-top: 10px; }
+        th { background-color: #ffd966; border: 1px solid #bf9000; padding: 8px; text-align: left; font-size: 13px; font-weight: bold; }
+        td { border: 1px solid #ffd966; padding: 8px; font-size: 13px; word-break: break-all; }
+        tr:nth-child(even) { background-color: #fff9e6; }
+        .durum-bekle { color: #d66011; font-weight: bold; }
+        .durum-ok { color: #008000; font-weight: bold; }
+        a { color: #0056b3; text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-icerik { background-color: white; margin: 12% auto; padding: 20px; border: 2px solid #0056b3; width: 450px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .modal-baslik { font-size: 15px; font-weight: bold; color: #0056b3; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .kapat-btn { float: right; font-size: 20px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .kapat-btn:hover { color: black; }
+        .file-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 13px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
+        .file-row-left { display: flex; flex-direction: column; gap: 5px; }
+        .upload-btn { background-color: #0056b3; color: white; border: none; padding: 4px 8px; cursor: pointer; border-radius: 3px; font-size: 11px; }
+        .upload-btn:hover { background-color: #004085; }
+        .btn-indir { background-color: #28a745; text-decoration: none; display: inline-block; padding: 3px 6px; color: white; border-radius: 3px; font-size: 11px; margin-top: 2px; }
+        .btn-indir.pasif { background-color: #6c757d; pointer-events: none; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="baslik">İncelemeye Değer Olmayan Evrak Listeleri</div>
+    <div class="filtre-paneli">
+        <div class="panel-baslik">Kriter Seçimi ve Filtreleme</div>
+        <div class="form-satir">
+            <div class="form-grup">
+                <label>Ay Seçin:</label>
+                <select id="f-ay" onchange="tabloyuFiltrele()">
+                    <option value="Tümü">Tümü</option><option value="Temmuz" selected>Temmuz</option>
+                    <option value="Ocak">Ocak</option><option value="Şubat">Şubat</option><option value="Mart">Mart</option>
+                    <option value="Nisan">Nisan</option><option value="Mayıs">Mayıs</option><option value="Haziran">Haziran</option>
+                    <option value="Ağustos">Ağustos</option><option value="Eylül">Eylül</option><option value="Ekim">Ekim</option>
+                    <option value="Kasım">Kasım</option><option value="Aralık">Aralık</option>
+                </select>
+            </div>
+            <div class="form-grup">
+                <label>Yıl Seçin:</label>
+                <select id="f-yil" onchange="tabloyuFiltrele()">
+                    <option value="Tümü">Tümü</option><option value="2026" selected>2026</option>
+                    <option value="2024">2024</option><option value="2025">2025</option><option value="2027">2027</option>
+                </select>
+            </div>
+            <div class="form-grup">
+                <label>Liste Adı:</label>
+                <select id="f-liste-adi" style="min-width: 350px;" onchange="tabloyuFiltrele()">
+                    <option value="Tümü">Tümü</option>
+                    <option value="Adana">Adana Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Adıyaman">Adıyaman Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Afyonkarahisar">Afyonkarahisar Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Ağrı">Ağrı Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Amasya">Amasya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Ankara">Ankara Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Antalya">Antalya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Artvin">Artvin Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Aydın">Aydın Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Balıkesir">Balıkesir Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bilecik">Bilecik Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bingöl">Bingöl Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bitlis">Bitlis Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bolu">Bolu Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Burdur">Burdur Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bursa">Bursa Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Çanakkale">Çanakkale Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Çankırı">Çankırı Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Çorum">Çorum Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Denizli">Denizli Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Diyarbakır">Diyarbakır Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Edirne">Edirne Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Elazığ">Elazığ Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Erzincan">Erzincan Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Erzurum">Erzurum Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Eskişehir">Eskişehir Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Gaziantep">Gaziantep Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Giresun">Giresun Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Gümüşhane">Gümüşhane Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Hakkari">Hakkari Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Hatay">Hatay Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Isparta">Isparta Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Mersin">Mersin Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="İstanbul">İstanbul Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="İzmir">İzmir Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kars">Kars Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kastamonu">Kastamonu Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kayseri">Kayseri Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kırklareli">Kırklareli Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kırşehir">Kırşehir Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kocaeli">Kocaeli Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Konya">Konya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kütahya">Kütahya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Malatya">Malatya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Manisa">Manisa Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kahramanmaraş">Kahramanmaraş Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Mardin">Mardin Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Muğla">Muğla Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Muş">Muş Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Nevşehir">Nevşehir Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Niğde">Niğde Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Ordu">Ordu Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Rize">Rize Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Sakarya">Sakarya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Samsun">Samsun Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Siirt">Siirt Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Sinop">Sinop Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Sivas">Sivas Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Tekirdağ">Tekirdağ Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Tokat">Tokat Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Trabzon">Trabzon Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Tunceli">Tunceli Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Şanlıurfa">Şanlıurfa Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Uşak">Uşak Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Van">Van Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Yozgat">Yozgat Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Zonguldak">Zonguldak Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Aksaray" selected>Aksaray Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bayburt">Bayburt Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Karaman">Karaman Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kırıkkale">Kırıkkale Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Batman">Batman Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Şırnak">Şırnak Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Bartın">Bartın Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Ardahan">Ardahan Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Iğdır">Iğdır Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Yalova">Yalova Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Karabük">Karabük Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Kilis">Kilis Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Osmaniye">Osmaniye Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Düzce">Düzce Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Ay</th>
+                <th>Yıl</th>
+                <th>Liste No</th>
+                <th>Liste Adı</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody id="tablo-govde">
+            <tr id="row-24691" data-ay="Temmuz" data-yil="2026" data-kurum="Aksaray">
+                <td>Temmuz</td>
+                <td>2026</td>
+                <td>24691</td>
+                <td><a onclick="pencereAc('24691', 'Aksaray Çalışma Ve İş Kurumu İl Müdürlüğü')">Aksaray Çalışma Ve İş Kurumu İl Müdürlüğü</a></td>
+                <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td>
+            </tr>
+            <tr id="row-24605" data-ay="Temmuz" data-yil="2026" data-kurum="Ankara" style="display: none;">
+                <td>Temmuz</td>
+                <td>2026</td>
+                <td>24605</td>
+                <td><a onclick="pencereAc('24605', 'Ankara Çalışma Ve İş Kurumu İl Müdürlüğü')">Ankara Çalışma Ve İş Kurumu İl Müdürlüğü</a></td>
+                <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="detayPenceresi" class="modal">
+        <div class="modal-icerik">
+            <span class="kapat-btn" onclick="pencereKapat()">&times;</span>
+            <div id="modalBaslikMetni" class="modal-baslik">Yükleme Paneli</div>
+            
+            <div class="file-row">
+                <div class="file-row-left">
+                    <span style="font-weight: bold;">Ek 1 Dosyası:</span>
+                    <span id="ek1-isim" style="color: #666; font-size: 11px;">Yüklenen dosya yok (-)</span>
+                    <a id="download1" class="btn-indir pasif" href="#">Ek-1 İndir</a>
+                </div>
+                <div>
+                    <input type="file" id="modal-file1" style="display: none;" onchange="dosyaSecildi(1)">
+                    <button class="upload-btn" onclick="document.getElementById('modal-file1').click()">Seç ve Yükle</button>
+                </div>
+            </div>
+
+            <div class="file-row">
+                <div class="file-row-left">
+                    <span style="font-weight: bold;">Ek 2 Dosyası:</span>
+                    <span id="ek2-isim" style="color: #666; font-size: 11px;">Yüklenen dosya yok (-)</span>
+                    <a id="download2" class="btn-indir pasif" href="#">Ek-2 İndir</a>
+                </div>
+                <div>
+                    <input type="file" id="modal-file2" style="display: none;" onchange="dosyaSecildi(2)">
+                    <button class="upload-btn" onclick="document.getElementById('modal-file2').click()">Seç ve Yükle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let aktifSeciliId = '';
+        const yuklemeTakip = {
+            '24691': { ek1: false, ek2: false, ek1_ad: '', ek2_ad: '', ek1_url: '', ek2_url: '' },
+            '24605': { ek1: false, ek2: false, ek1_ad: '', ek2_ad: '', ek1_url: '', ek2_url: '' }
+        };
+
+        function tabloyuFiltrele() {
+            const secilenAy = document.getElementById('f-ay').value;
+            const secilenYil = document.getElementById('f-yil').value;
+            const secilenKurum = document.getElementById('f-liste-adi').value;
+            const satirlar = document.querySelectorAll('#tablo-govde tr');
+
+            satirlar.forEach(satir => {
+                const a = satir.getAttribute('data-ay');
+                const y = satir.getAttribute('data-yil');
+                const k = satir.getAttribute('data-kurum');
+
+                const ayUyuyor = (secilenAy === 'Tümü' || a === secilenAy);
+                const yilUyuyor = (secilenYil === 'Tümü' || y === secilenYil);
+                const kurumUyuyor = (secilenKurum === 'Tümü' || k === secilenKurum);
+
+                if (ayUyuyor && yilUyuyor && kurumUyuyor) {
+                    satir.style.display = '';
+                } else {
+                    satir.style.display = 'none';
+                }
+            });
+        }
+
+        function pencereAc(id, kurumAdi) {
+            aktifSeciliId = id;
+            document.getElementById('modalBaslikMetni').innerText = id + " - " + kurumAdi;
+            
+            const veri = yuklemeTakip[id];
+            document.getElementById('ek1-isim').innerText = veri.ek1 ? veri.ek1_ad : "Yüklenen dosya yok (-)";
+            document.getElementById('ek2-isim').innerText = veri.ek2 ? veri.ek2_ad : "Yüklenen dosya yok (-)";
+            
+            const d1 = document.getElementById('download1');
+            if(veri.ek1) { d1.className = "btn-indir"; d1.href = veri.ek1_url; } else { d1.className = "btn-indir pasif"; }
+            
+            const d2 = document.getElementById('download2');
+            if(veri.ek2) { d2.className = "btn-indir"; d2.href = veri.ek2_url; } else { d2.className = "btn-indir pasif"; }
+
+            document.getElementById('detayPenceresi').style.display = 'block';
+        }
+
+        function pencereKapat() { document.getElementById('detayPenceresi').style.display = 'none'; }
+
+        function dosyaSecildi(ekNo) {
+            const fileInput = document.getElementById("modal-file" + ekNo);
+            if (fileInput.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+            formData.append('listeNo', aktifSeciliId);
+
+            fetch('/api/upload-single', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                alert("Ek-" + ekNo + " Başarıyla Yüklendi!");
+                const veri = yuklemeTakip[aktifSeciliId];
+                
+                if (ekNo === 1) {
+                    veri.ek1 = true; veri.ek1_ad = data.orijinalAd;
+                    veri.ek1_url = "/api/download?file=" + encodeURIComponent(data.kayitliAd);
+                } else {
+                    veri.ek2 = true; veri.ek2_ad = data.orijinalAd;
+                    veri.ek2_url = "/api/download?file=" + encodeURIComponent(data.kayitliAd);
+                }
+                
+                if (veri.ek1 && veri.ek2) {
+                    const hucresi = document.getElementById("row-" + aktifSeciliId).querySelector('.sonuc-alan');
+                    hucresi.innerText = "Tamamlandı"; hucresi.className = "sonuc-alan durum-ok";
+                }
+                pencereAc(aktifSeciliId, document.getElementById('modalBaslikMetni').innerText.split(' - ')[1]);
+            }).catch(err => { alert('Yükleme hatası.'); });
+        }
+        window.onload = tabloyuFiltrele;
+    </script>
+</body>
+</html>
