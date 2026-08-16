@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>İş Teftiş Otomasyon Sistemi - İTOS</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .ust-header { background-color: white; border-bottom: 2px solid #5d7b5b; padding: 5px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; }
+        .itos-menu { background-color: #5d7b5b; padding: 8px 20px; display: flex; gap: 10px; }
+        .itos-menu button { background-color: #799a75; color: white; border: 1px solid #4a6349; padding: 5px 15px; font-weight: bold; cursor: pointer; border-radius: 3px; font-size: 13px; }
+        .itos-menu button:hover { background-color: #4a6349; }
+        .anasayfa-bar { background-color: white; padding: 5px 20px; font-size: 12px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .ana-konteyner { padding: 20px; }
+        .itos-baslik-alan { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .itos-baslik { font-size: 18px; font-weight: bold; color: #444; }
+        .filtre-cubugu { display: flex; gap: 15px; align-items: center; background-color: #eaeaea; padding: 8px 15px; border-radius: 4px; font-size: 13px; font-weight: bold; }
+        .filtre-cubugu select { padding: 3px; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; background-color: #ffe699; margin-top: 10px; border: 1px solid #bf9000; }
+        th { background-color: #ffd966; border: 1px solid #bf9000; padding: 8px; text-align: left; font-size: 12px; font-weight: bold; color: #000; }
+        td { border: 1px solid #bf9000; padding: 6px 8px; font-size: 12px; background-color: #fff2cc; color: #000; word-break: break-all; }
+        tr:nth-child(even) td { background-color: #fff9e6; }
+        .durum-bekle { color: #d66011; font-weight: bold; }
+        .durum-ok { color: #008000; font-weight: bold; }
+        a { color: #0056b3; text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-icerik { background-color: white; margin: 15% auto; padding: 20px; border: 2px solid #5d7b5b; width: 420px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .modal-baslik { font-size: 15px; font-weight: bold; color: #4a6349; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .kapat-btn { float: right; font-size: 20px; font-weight: bold; cursor: pointer; color: #aaa; }
+        .kapat-btn:hover { color: black; }
+        .file-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
+        .file-row label { width: 50px; font-weight: bold; }
+        .upload-btn { background-color: #5d7b5b; color: white; border: none; padding: 4px 8px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+        .upload-btn:hover { background-color: #4a6349; }
+        .btn-indir { background-color: #28a745; text-decoration: none; display: inline-block; padding: 3px 6px; color: white; border-radius: 3px; font-size: 11px; font-weight: bold; margin-right: 3px; }
+        .btn-indir.pasif { background-color: #6c757d; pointer-events: none; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="ust-header">
+        <div>T.C. Çalışma ve Sosyal Güvenlik Bakanlığı<br>İş Teftiş Otomasyon Sistemi</div>
+        <div style="color: #c00;">Ankara Rehberlik ve Teftiş Grup Başkanlığı 👤 Ender GÜLBAHAR (11300)</div>
+    </div>
+    <div class="itos-menu">
+        <button>Evrak</button><button style="background-color: #4a6349;">İzin</button><button>Evraklarım</button><button>Hesabım</button><button>Yardım</button>
+    </div>
+    <div class="anasayfa-bar">
+        <div>🔄 Anasayfa</div>
+    </div>
+    <div class="ana-konteyner">
+        <div class="itos-baslik-alan">
+            <div class="itos-baslik">İncelemeye Değer Olmayan Evrak Listeleri</div>
+            <div class="filtre-cubugu">
+                <span>Ay:</span>
+                <select id="f-ay" onchange="tabloyuFiltrele()">
+                    <option value="Tümü">Tümü</option><option value="Temmuz">Temmuz</option><option value="Ağustos" selected>Ağustos</option>
+                </select>
+                <span>Yıl:</span>
+                <select id="f-yil" onchange="tabloyuFiltrele()">
+                    <option value="Tümü">Tümü</option><option value="2024">2024</option><option value="2026" selected>2026</option>
+                </select>
+                <span>İl Müdürlüğü:</span>
+                <select id="f-kurum" onchange="tabloyuFiltrele()" style="width: 250px;">
+                    <option value="Tümü">Tümü (Tüm İller)</option>
+                    <option value="Ankara">Ankara Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Aksaray">Aksaray Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Eskişehir">Eskişehir Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Konya">Konya Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                    <option value="Sivas">Sivas Çalışma Ve İş Kurumu İl Müdürlüğü</option>
+                </select>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Ay / Yıl</th>
+                    <th>Liste No</th>
+                    <th>Liste Adı</th>
+                    <th>Yaratılma Tarihi</th>
+                    <th>İşlem</th>
+                    <th>EK-1</th>
+                    <th>EK-2</th>
+                    <th>Metin / Not</th>
+                    <th>Türü</th>
+                    <th>Şehir</th>
+                    <th>Sonuç</th>
+                    <th>Belge İndir</th>
+                </tr>
+            </thead>
+            <tbody id="tablo-govde">
+                <!-- Sabit İTOS Verileri -->
+                <tr class="veri-satiri" data-ay="Ağustos" data-yil="2026" data-kurum="Eskişehir">
+                    <td>Ağustos / 2026</td><td>24702</td><td>Eskişehir Çalışma Ve İş Kurumu İl Müdürlüğü SOSYAL / 149</td><td>05/08/2026</td>
+                    <td><a onclick="pencereAc('24702', 'Eskişehir')">Detay</a></td><td class="ek1-isim">-</td><td class="ek2-isim">-</td><td>-</td><td>SOSYAL</td><td>Eskişehir</td>
+                    <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td><td><a id="download1-24702" class="btn-indir pasif" href="#">Ek-1</a><a id="download2-24702" class="btn-indir pasif" href="#">Ek-2</a></td>
+                </tr>
+                <tr class="veri-satiri" data-ay="Ağustos" data-yil="2026" data-kurum="Konya">
+                    <td>Ağustos / 2026</td><td>24730</td><td>Konya Çalışma Ve İş Kurumu İl Müdürlüğü TEKNİK / 113</td><td>14/08/2026</td>
+                    <td><a onclick="pencereAc('24730', 'Konya')">Detay</a></td><td class="ek1-isim">-</td><td class="ek2-isim">-</td><td>-</td><td>TEKNİK</td><td>Konya</td>
+                    <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td><td><a id="download1-24730" class="btn-indir pasif" href="#">Ek-1</a><a id="download2-24730" class="btn-indir pasif" href="#">Ek-2</a></td>
+                </tr>
+                <tr class="veri-satiri" data-ay="Ağustos" data-yil="2026" data-kurum="Ankara">
+                    <td>Ağustos / 2026</td><td>24826</td><td>Ankara Çalışma Ve İş Kurumu İl Müdürlüğü SOSYAL / 97</td><td>14/08/2026</td>
+                    <td><a onclick="pencereAc('24826', 'Ankara')">Detay</a></td><td class="ek1-isim">-</td><td class="ek2-isim">-</td><td>-</td><td>SOSYAL</td><td>Ankara</td>
+                    <td class="sonuc-alan durum-bekle">Süreç Devam Ediyor</td><td><a id="download1-24826" class="btn-indir pasif" href="#">Ek-1</a><a id="download2-24826" class="btn-indir pasif" href="#">Ek-2</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="detayPenceresi" class="modal">
+        <div class="modal-icerik">
+            <span class="kapat-btn" onclick="pencereKapat()">&times;</span>
+            <div id="modalBaslikMetni" class="modal-baslik">Dosya Yükleme Paneli</div>
+            <div class="file-row">
+                <label>Ek-1:</label><input type="file" id="modal-file1">
+                <button class="upload-btn" onclick="detaydanYukle(1)">Yükle</button>
+            </div>
+            <div class="file-row">
+                <label>Ek-2:</label><input type="file" id="modal-file2">
+                <button class="upload-btn" onclick="detaydanYukle(2)">Yükle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let aktifSeciliId = '';
+        const yuklemeTakip = { '24702': { ek1: false, ek2: false }, '24730': { ek1: false, ek2: false }, '24826': { ek1: false, ek2: false } };
+
+        function tabloyuFiltrele() {
+            const secilenAy = document.getElementById('f-ay').value;
+            const secilenYil = document.getElementById('f-yil').value;
+            const secilenKurum = document.getElementById('f-kurum').value;
+            const satirlar = document.querySelectorAll('.veri-satiri');
+
+            satirlar.forEach(satir => {
+                const satAy = satir.getAttribute('data-ay');
+                const satYil = satir.getAttribute('data-yil');
+                const satKurum = satir.getAttribute('data-kurum');
+
+                const ayOk = (secilenAy === 'Tümü' || satAy === secilenAy);
+                const yilOk = (secilenYil === 'Tümü' || satYil === secilenYil);
+                const kurumOk = (secilenKurum === 'Tümü' || satKurum === secilenKurum);
+
+                if(ayOk && yilOk && kurumOk) {
+                    satir.style.display = '';
+                } else {
+                    satir.style.display = 'none';
+                }
+            });
+        }
+
+        function pencereAc(id, kurumAdi) {
+            aktifSeciliId = id;
+            document.getElementById('modalBaslikMetni').innerText = id + " - " + kurumAdi + " İl Müdürlüğü Ek Yükleme";
+            document.getElementById('modal-file1').value = ''; document.getElementById('modal-file2').value = '';
+            document.getElementById('detayPenceresi').style.display = 'block';
+        }
+        function pencereKapat() { document.getElementById('detayPenceresi').style.display = 'none'; }
+
+        function detaydanYukle(ekNo) {
+            const fileInput = document.getElementById("modal-file" + ekNo);
+            if (fileInput.files.length === 0) { alert("Lütfen dosya seçin!"); return; }
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+            formData.append('listeNo', aktifSeciliId);
+
+            fetch('/api/upload-single', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                alert("Başarıyla yüklendi!");
+                const satir = document.getElementById("row-" + aktifSeciliId) || document.querySelector(`[id$='${aktifSeciliId}']`);
+                if (ekNo === 1) {
+                    satir.querySelector('.ek1-isim').innerText = data.orijinalAd;
+                    const indir1 = satir.querySelector(`[id^='download1-']`);
+                    indir1.className = "btn-indir"; indir1.href = "/api/download?file=" + encodeURIComponent(data.kayitliAd);
+                    yuklemeTakip[aktifSeciliId].ek1 = true;
+                } else {
+                    satir.querySelector('.ek2-isim').innerText = data.orijinalAd;
+                    const indir2 = satir.querySelector(`[id^='download2-']`);
+                    indir2.className = "btn-indir"; indir2.href = "/api/download?file=" + encodeURIComponent(data.kayitliAd);
+                    yuklemeTakip[aktifSeciliId].ek2 = true;
+                }
+                if (yuklemeTakip[aktifSeciliId].ek1 && yuklemeTakip[aktifSeciliId].ek2) {
+                    const sonucHucresi = satir.querySelector('.sonuc-alan');
+                    sonucHucresi.innerText = "Tamamlandı"; sonucHucresi.className = "sonuc-alan durum-ok";
+                }
+            }).catch(err => { alert('Yükleme hatası.'); });
+        }
+        window.onload = tabloyuFiltrele;
+    </script>
+</body>
+</html>
